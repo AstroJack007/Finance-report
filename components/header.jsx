@@ -8,8 +8,10 @@ import { SignInButton,
   SignedOut,
   UserButton,
 } from '@clerk/nextjs';
+import { checkUser } from '@/lib/checkUser';
 import { Button } from "@/components/ui/button";
-const header = () => {
+const header = async() => {
+  await checkUser();
   return (
     <div className='border-1 border-black fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 '>
 
