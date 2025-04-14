@@ -1,14 +1,20 @@
 "use server"
 import {auth} from "@clerk/nextjs/server"
 import {db} from "@/lib/prisma"
-import { ToastContainer, toast } from 'react-toastify';
-const serializeTransaction =(obj)=>{
-    const serialized ={...obj};
+import { toast, Toaster } from "sonner";
+import {revalidatePath} from "next/cache";
+import { serialize, writeHeapSnapshot } from "v8";
 
-    if(obj.balance){
-        serialized.balance=obj.balance.toNumber();
+const serializeTransaction = (obj) => {
+    const serialized = { ...obj };
+    if (obj.balance) {
+      serialized.balance = obj.balance.toNumber();
     }
-};
+    if (obj.amount) {
+      serialized.amount = obj.amount.toNumber();
+    }
+    return serialized;
+  };
 
 
 export async function createAccount(data){
@@ -58,9 +64,51 @@ export async function createAccount(data){
         });
 
         const serializedAccount =serializeTransaction(account);
+        
         revalidatePath("/dashboard");
         return {success : true , data :serializedAccount};
     }catch(err){
-        toast.error(err.message);
+        throw new Error(err.message);
     }
+}
+
+export async function getUserAccounts(){
+    
+        const {userId}=await auth();
+        if(!userId){
+            throw new Error("Unauthorized");
+
+        }
+
+        const user  = await db.user.findUnique({
+            where:{clerkUserId:userId },
+        });
+
+        if(!user){
+            throw new Error("User not found");
+        }
+        
+        const accounts = await db.account.findMany({
+            where:{
+                userId: user.id,
+            },
+            orderBy:{
+                createdAt:"desc",
+            },
+            include:{
+                _count:{
+                    select:{
+                        transactions:true,
+                    }
+                }
+            }
+
+           
+
+        })
+        const serializedAccount= accounts.map(serializeTransaction);
+        return serializedAccount;
+        
+
+
 }

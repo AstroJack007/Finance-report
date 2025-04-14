@@ -1,5 +1,5 @@
-"use client";
-import React from "react";
+ "use client";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import {
   Drawer,
@@ -24,7 +24,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { accountSchema } from "@/app/lib/schema";
 import { Switch } from "@/components/ui/switch";
-import {Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import useFetch from "@/hooks/use-fetch";
+import { createAccount } from "@/actions/dashboard";
+import { Loader, Loader2 } from "lucide-react";
+import { toast} from "sonner";;
 export const CreateAccountDrawer = ({ children }) => {
   const [open, setopen] = useState(false);
   const {
@@ -43,17 +47,36 @@ export const CreateAccountDrawer = ({ children }) => {
       isDefault: false,
     },
   });
-
-  const onSubmit =async(data)=>{
-    console.log(data)
-  }
+  const {
+    data: newAccount,
+    error,
+    fn: createAccountFn,
+    loading: createAccountLoading,
+  } = useFetch(createAccount);
+  const onSubmit = async (data) => {
+    await createAccountFn(data);
+  };
+  useEffect(()=>{
+    if(newAccount && !createAccountLoading){
+      toast.success("Account Created Succefully");
+      reset();
+      setopen(false);
+    }
+  },[createAccountLoading,newAccount])
+  
+  useEffect(()=>{
+    if(error){
+      toast.error(error.message || "Failed to create Account");
+    }
+  },[error])
+ 
   return (
     <Drawer open={open} onOpenChange={setopen}>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle className="text-lg">
-            Are you absolutely sure?
+            Create New Account
           </DrawerTitle>
         </DrawerHeader>
         <div className="px-4 py-3">
@@ -91,7 +114,9 @@ export const CreateAccountDrawer = ({ children }) => {
               </Select>
 
               {errors.type && (
-                <p className="text-sm text-red-500">{errors.type.message} </p>
+                <p className="text-sm text-red-500">
+                  {errors.type.message}{" "}
+                </p>
               )}
             </div>
 
@@ -116,32 +141,42 @@ export const CreateAccountDrawer = ({ children }) => {
 
             <div className="flex items-center  justify-between border p-2 rounded-xl">
               <div className="">
-              <label htmlFor="default" className="text-md font-medium">
-                Set as Default:
-              </label>
-              <p className="font-medium">This account will be selected by default for transaction</p>
-              
+                <label htmlFor="default" className="text-md font-medium">
+                  Set as Default:
+                </label>
+                <p className="font-medium">
+                  This account will be selected by default for transaction
+                </p>
               </div>
               <Switch
                 id="default"
                 onCheckedChange={(checked) => setValue("isDefault", checked)}
                 checked={watch("isDefault")}
               />
-              
-              
             </div>
 
             <div className="flex gap-4 pt-4">
-                <DrawerClose asChild>
-                  <Button type='button' variant='outline' className="flex-1">
-                    Cancel
-                  </Button>
-                </DrawerClose>
-
-                <Button className='flex-1' >
-                  Create Account
+              <DrawerClose asChild>
+                <Button type="button" variant="outline" className="flex-1">
+                  Cancel
                 </Button>
-              </div>
+              </DrawerClose>
+
+              <Button
+                className="flex-1"
+                type="submit"
+                disabled={createAccountLoading}
+              >
+                {createAccountLoading ? (
+                  <>
+                    <Loader2 className="animate-spin h-4 w-4" />
+                    Creating....
+                  </>
+                ) : (
+                  "Create Account"
+                )}
+              </Button>
+            </div>
           </form>
         </div>
       </DrawerContent>
