@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import useFetch from "@/hooks/use-fetch";
 import { createAccount } from "@/actions/dashboard";
 import { Loader, Loader2 } from "lucide-react";
-import { toast} from "sonner";;
+import { toast} from "sonner";
 export const CreateAccountDrawer = ({ children }) => {
   const [open, setopen] = useState(false);
   const {
