@@ -1,6 +1,8 @@
-import React from "react";
+import React,{ Suspense } from "react";
 import { getAccountwithTransactions } from "@/actions/accounts";
 import { notFound } from "next/navigation";
+import transactiontable from "../components/transaction-table";
+
 const page = async ({ params }) => {
   const accountdata = await getAccountwithTransactions(params.id);
   if (!accountdata) {
@@ -27,6 +29,9 @@ const page = async ({ params }) => {
       {/*CHART SECTION */}
 
       {/*TABLE SECTION */}
+      <Suspense>
+        <transactiontable/>
+      </Suspense>
     </div>
   );
 };
