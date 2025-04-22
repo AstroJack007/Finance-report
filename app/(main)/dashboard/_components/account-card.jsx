@@ -61,7 +61,7 @@ const Accountcard = ({ account }) => {
         </CardHeader>
         <CardContent>
           <div className="text-xl font-bold">
-            ${parseFloat(balance).toFixed(2)}
+          &#8377;{parseFloat(balance).toFixed(2)}
           </div>
           <div className="text-s capitalize text-muted-foreground ">
             {type.slice(0).toLowerCase()} Account
