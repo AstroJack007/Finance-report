@@ -14,7 +14,7 @@ const page = async ({ params }) => {
   const { transactions, ...account } = accountdata;
 
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto space-y-8 px-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="gradient-title capitalize text-5xl font-bold">
