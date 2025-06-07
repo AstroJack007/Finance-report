@@ -26,7 +26,7 @@ const Accountcard = ({ account }) => {
     error,
   } = useFetch(updateDefaultAccount);
   const handleDefaultChange=async (e)=>{
-    e.preventDefault();     // ⛔ Prevent Link navigation
+    e.preventDefault();     //  Prevent Link navigation
       
     
 
