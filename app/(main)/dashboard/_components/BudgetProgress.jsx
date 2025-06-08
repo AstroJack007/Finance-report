@@ -116,7 +116,9 @@ const BudgetProgress = ({ initialBudget, currentExpenses }) => {
        {initialBudget && (
         <div>
           <Progress value={percentUsed}/>
+          <p className="text-muted-foreground text-sm mt-1 text-right">{percentUsed.toFixed(2)}%</p>
         </div>
+        
        )}
       </CardContent>
     </Card>
