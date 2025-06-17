@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Calendar1 } from "lucide-react";
+import { Calendar1, Receipt } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 
 import {
@@ -22,12 +22,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { parse } from "path";
-
+import ReceiptScanner from "./ReceiptScanner";
 const TransactionForm = ({ accounts, categories }) => {
   const router= useRouter(); // use router to navigate back after transaction creation
   const {
@@ -59,7 +59,20 @@ const TransactionForm = ({ accounts, categories }) => {
   const type = watch("type"); //use where there are default values
   const isRecurring = watch("isRecurring");
   const date = watch("date");
+  const handleScan=(data)=>{
+    console.log("Scanned Data:", data);
+    setValue("amount", data.amount);
+    if(data.description){
+    setValue("description", data.description);
+    }
+    if(data.category){
+      setValue("category", data.category);
+    }
+    setValue("date", new Date(data.date));
+    toast.success("Receipt scanned successfully");
 
+    
+  }
   const filteredCategories = categories.filter((cat) => {
     return cat.type === type;
   });
@@ -87,6 +100,12 @@ const TransactionForm = ({ accounts, categories }) => {
   return (
     <form onSubmit={handleSubmit(submit)}>
       {/*AI RECEIPT SCANNER*/}
+      <ReceiptScanner onScanComplete={handleScan} />
+
+
+
+
+
       <div className="space-y-4">
         <label className="font-bold">Type</label>
         <Select
