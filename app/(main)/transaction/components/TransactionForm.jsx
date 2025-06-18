@@ -59,6 +59,7 @@ const TransactionForm = ({ accounts, categories }) => {
   const type = watch("type"); //use where there are default values
   const isRecurring = watch("isRecurring");
   const date = watch("date");
+  const category = watch("category");
   const handleScan=(data)=>{
     console.log("Scanned Data:", data);
     setValue("amount", data.amount);
@@ -171,7 +172,7 @@ const TransactionForm = ({ accounts, categories }) => {
             onValueChange={(value) => {
               setValue("category", value);
             }}
-            defaultValue={getValues("category") || ""}
+            value={category|| ""}
           >
             <SelectTrigger className="w-full mt-2">
               <SelectValue placeholder="Select Category" />

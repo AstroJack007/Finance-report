@@ -7,21 +7,24 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 function calculateNextReccurringDate(currentdate, interval) {
   const date = new Date(currentdate);
+  
   switch (interval) {
     case "daily":
       date.setDate(date.getDate() + 1);
       break;
     case "weekly":
-      date.setDate(date.getDate() + 7);
+     date.setDate(date.getDate() + 7);
       break;
     case "monthly":
-      date.setDate(date.getMonth() + 1);
+     
+      date.setMonth(date.getMonth()+1);
       break;
     case "yearly":
-      date.setDate(date.getFullYear() + 1);
+      date.setFullYear(date.getFullYear() + 1);
       break;
   }
-  return date;
+    
+    return new Date(date);
 }
 
 const serializeTransaction = (obj) => ({
