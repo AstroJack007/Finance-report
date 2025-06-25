@@ -5,6 +5,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import useFetch from "@/hooks/use-fetch";
 import { createTransaction } from "@/actions/transaction";
+import { EditTranscation } from "@/actions/transaction";
 import {
   Select,
   SelectContent,
@@ -13,9 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Calendar1, Receipt } from "lucide-react";
+import { Calendar1, Loader2, Receipt } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-
+import { useSearchParams } from "next/navigation";
 import {
   Popover,
   PopoverContent,
@@ -28,7 +29,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { parse } from "path";
 import ReceiptScanner from "./ReceiptScanner";
-const TransactionForm = ({ accounts, categories }) => {
+import { Loader2Icon } from "lucide-react";
+const TransactionForm = ({ accounts, categories,editMode=false,initialData=null }) => {
   const router= useRouter(); // use router to navigate back after transaction creation
   const {
     register,
@@ -40,7 +42,18 @@ const TransactionForm = ({ accounts, categories }) => {
     getValues,
   } = useForm({
     resolver: zodResolver(TransactionSchema),
-    defaultValues: {
+    defaultValues:editMode && initialData?{
+      type:initialData.type,
+      amount: initialData.amount.toString(),
+      description: initialData.description,
+      accountId:initialData.accountId,
+      date: new Date(initialData.date),
+      isRecurring: initialData.isRecurring ,
+       ...(initialData.reccurringInterval && {
+        reccurringInterval:initialData.reccurringInterval,
+      }),
+      
+    } :{
       type: "Expense",
       amount: "",
       description: "",
@@ -55,7 +68,7 @@ const TransactionForm = ({ accounts, categories }) => {
     loading: transactionLoading,
     error: errorfn,
     fn: transactionFn,
-  } = useFetch(createTransaction);
+  } = useFetch(editMode?EditTranscation:createTransaction);
   const type = watch("type"); //use where there are default values
   const isRecurring = watch("isRecurring");
   const date = watch("date");
@@ -77,22 +90,31 @@ const TransactionForm = ({ accounts, categories }) => {
   const filteredCategories = categories.filter((cat) => {
     return cat.type === type;
   });
+  const searchParams=useSearchParams();
+  const editId=searchParams?.get("edit");
 
   const submit = async(data)=>{
     const formdata={
       ...data,
       amount: parseFloat(data.amount),
     }
-    transactionFn(formdata)
+    if(editMode){
+      transactionFn(editId,formdata);
+    }else{
+    transactionFn(formdata)}
+
   }
+
+
+  
   useEffect(()=>{
     if(transactionResult?.success&& !transactionLoading){
      
-      toast.success("Transaction created successfully");
+      toast.success(editMode?"Transaction Updated Successfully":"Transaction created successfully");
        reset();
       router.push(`/account/${transactionResult.data.accountId}`);
     }
-  },[transactionResult,transactionLoading]);
+  },[transactionResult,transactionLoading,editMode]);
   useEffect(() => {
   if (errorfn) {
     toast.error("Failed to create transaction");
@@ -101,7 +123,7 @@ const TransactionForm = ({ accounts, categories }) => {
   return (
     <form onSubmit={handleSubmit(submit)}>
       {/*AI RECEIPT SCANNER*/}
-      <ReceiptScanner onScanComplete={handleScan} />
+    {!editMode &&  <ReceiptScanner onScanComplete={handleScan} />}
 
 
 
@@ -296,7 +318,16 @@ const TransactionForm = ({ accounts, categories }) => {
           type= "submit"
           className="w-full"
           disabled={transactionLoading}>
-            Create Transaction
+           {transactionLoading?
+           <>
+            (<Loader2Icon className="animate-spin" />
+            {editMode?"Editing... ": "Creating"})
+            </>
+           : editMode?
+            "Update Transaction"
+            :
+            "Create Transaction"
+          }
           </Button>
         </div>
      

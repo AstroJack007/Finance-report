@@ -112,3 +112,32 @@ export async function getUserAccounts(){
 
 
 }
+
+export async function getDashboardData(){
+    try{
+    const {userId}=auth();
+    if(!userId){
+        throw new Error("Unauthorized");
+    }
+
+    const user=await db.user.findUnique({
+        where:{
+            clerkUserId:userId,
+        }
+    })
+    if(!userId){
+        throw new Error("User not found")
+    }
+    const transactions= await db.transaction.findMany({
+        where:{
+            userId:user.id,
+
+        },
+        orderBy:{
+            date:"desc"
+        }
+    })
+}catch(err){
+    
+}
+}

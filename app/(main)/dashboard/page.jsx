@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { CreateAccountDrawer } from "@/components/create-account";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
@@ -6,6 +6,7 @@ import { getUserAccounts } from "@/actions/dashboard";
 import Accountcard from "./_components/account-card";
 import { getCurrentBudget } from "@/actions/budget";
 import BudgetProgress from "./_components/BudgetProgress";
+import { getDashboardData } from "@/actions/dashboard";
 async function DashboardPage() {
   const accounts = await getUserAccounts();
 
@@ -15,6 +16,8 @@ async function DashboardPage() {
   if (defaultAcc) {
     budgetData = await getCurrentBudget(defaultAcc.id);
   }
+
+  const transaction= await getDashboardData();
   return (
     <div className="px-5 ">
       {/*Budget Progress*/}
@@ -43,6 +46,13 @@ async function DashboardPage() {
             return <Accountcard key={account.id} account={account} />;
           })}
       </div>
+
+          <Suspense fallback={"Loading..."}> 
+            <DashboardOverview
+            accounts={accounts}
+            transaction={transaction||0}/>
+          </Suspense>
+
     </div>
   );
 }
