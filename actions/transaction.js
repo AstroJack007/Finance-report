@@ -3,7 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
+import { headers } from "next/headers";
+import { ratelimit } from "@/lib/upstashRatelimit";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 function calculateNextReccurringDate(currentdate, interval) {
   const date = new Date(currentdate);
@@ -30,11 +31,25 @@ const serializeTransaction = (obj) => ({
   ...obj,
   amount: obj.amount.toNumber(),
 });
+
 export async function createTransaction(data) {
   try {
     const { userId } = await auth();
     if (!userId) {
       throw new Error("User not authenticated");
+    }
+
+    // Upstash rate limit: 10 req/min per key (user fallback to IP)
+    let ip = "127.0.0.1";
+    try {
+  const h = await headers(); // must await in server actions
+   const fwd = h.get("x-forwarded-for") || h.get("x-real-ip");
+    ip = fwd?.split(",")[0]?.trim() || ip;
+    } catch {}
+    const key = userId ? `user:${userId}` : `ip:${ip}`;
+    const { success } = await ratelimit.limit(key);
+    if (!success) {
+      throw new Error("Too many requests. Please try again later");
     }
 
     const user = await db.user.findUnique({

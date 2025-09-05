@@ -80,10 +80,9 @@ export async function getUserAccounts(){
 
         }
 
-        const user  = await db.user.findUnique({
-            where:{clerkUserId:userId },
-        });
-
+        const user=await db.user.findUnique({
+            where:{clerkUserId:userId},
+        })
         if(!user){
             throw new Error("User not found");
         }
@@ -115,7 +114,7 @@ export async function getUserAccounts(){
 
 export async function getDashboardData(){
     try{
-    const {userId}=auth();
+    const {userId}=await auth();
     if(!userId){
         throw new Error("Unauthorized");
     }
@@ -137,7 +136,8 @@ export async function getDashboardData(){
             date:"desc"
         }
     })
+    return transactions.map(serializeTransaction);
 }catch(err){
-    
+    throw new Error(err.message);
 }
 }

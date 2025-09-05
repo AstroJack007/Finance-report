@@ -7,6 +7,7 @@ import Accountcard from "./_components/account-card";
 import { getCurrentBudget } from "@/actions/budget";
 import BudgetProgress from "./_components/BudgetProgress";
 import { getDashboardData } from "@/actions/dashboard";
+import DashboardOverview from "./_components/DashboardOverview"
 async function DashboardPage() {
   const accounts = await getUserAccounts();
 
@@ -18,6 +19,7 @@ async function DashboardPage() {
   }
 
   const transaction= await getDashboardData();
+  
   return (
     <div className="px-5 ">
       {/*Budget Progress*/}
@@ -29,9 +31,15 @@ async function DashboardPage() {
           />
         )}
       </div>
+      {/*Transaction grid*/}
+      <Suspense fallback={"Loading..."}> 
+            <DashboardOverview
+            accounts={accounts}
+            transactions={transaction||0}/>
+          </Suspense>
 
       {/*account grid*/}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-3">
         <CreateAccountDrawer>
           <Card className="hover:shadow-lg transition-shadow cursor-pointer border-dashed">
             <CardContent className="flex flex-col justify-center items-center h-full text-muted-foreground ">
@@ -47,12 +55,7 @@ async function DashboardPage() {
           })}
       </div>
 
-          <Suspense fallback={"Loading..."}> 
-            <DashboardOverview
-            accounts={accounts}
-            transaction={transaction||0}/>
-          </Suspense>
-
+          
     </div>
   );
 }

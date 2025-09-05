@@ -7,11 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "email": "email dev"
+    "email": "email dev",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@arcjet/inspect": "^1.0.0-beta.8",
-    "@arcjet/next": "^1.0.0-beta.8",
     "@bufbuild/protobuf": "^2.5.2",
     "@clerk/nextjs": "^6.12.5",
     "@connectrpc/connect": "^2.0.2",
@@ -29,6 +28,8 @@
     "@radix-ui/react-switch": "^1.1.3",
     "@radix-ui/react-tooltip": "^1.1.8",
     "@react-email/components": "^0.0.41",
+    "@upstash/ratelimit": "^2.0.6",
+    "@upstash/redis": "^1.35.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^2.30.0",
