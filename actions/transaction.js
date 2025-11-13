@@ -115,7 +115,7 @@ export async function createTransaction(data) {
 
 export async function scanReceipt(file) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const arrayBuffer = await file.arrayBuffer(); //conver file to array buffer
     const base64String = Buffer.from(arrayBuffer).toString("base64"); //convert array buffer to base64 string
